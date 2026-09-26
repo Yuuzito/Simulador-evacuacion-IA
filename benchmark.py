@@ -17,7 +17,7 @@ def run_benchmark(
     cell_capacity: int = 2,
     spawn_pos: Coord = (1, 1),
     spread_interval_k: int = 3,
-    output_csv: str = "results/benchmark_results.csv"
+    output_csv: str = "results/benchmark_results_2.0.csv"
 ):
     scenarios = [
         {"name": "Mapa 1 (Cuello de Botella)", "path": "resources/maps/escenario_1.txt"},

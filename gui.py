@@ -346,16 +346,15 @@ class EvacuationSimulatorGUI:
         self.current_grid = Grid(map_path)
         self.exit_lbl.config(text=str(self.current_grid.exit_pos))
 
-        # Restablecer foco aleatorio por defecto
-        self._generate_random_fire()
-
-        # Limpiar repetición y dibujar preview
+        # 1. Limpiar repetición y resetear controles ANTES de generar el nuevo foco y redibujar
         self.best_history = []
         self.current_replay_turn = 0
         self.turn_slider.config(to=0)
         self.replay_status_lbl.config(text="Vista Previa del Mapa (Listo para configurar)")
         self.viewer_title_lbl.config(text=f"VISTA PREVIA: {map_key}")
-        self._draw_current_state()
+
+        # 2. Restablecer foco aleatorio por defecto (que a su vez llama a _draw_current_state)
+        self._generate_random_fire()
 
     def _generate_random_fire(self):
         if not self.current_grid:
@@ -443,7 +442,9 @@ class EvacuationSimulatorGUI:
         # 1. Si hay replay activo, leer snapshot del turno actual
         current_snapshot = None
         if self.best_history and 0 <= self.current_replay_turn < len(self.best_history):
-            current_snapshot = self.best_history[self.current_replay_turn]
+            snap = self.best_history[self.current_replay_turn]
+            if snap.get("fire") is not None and snap["fire"].shape == (rows, cols):
+                current_snapshot = snap
 
         # 2. Dibujar celdas base
         for r in range(rows):

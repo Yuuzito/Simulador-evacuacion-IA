@@ -1,6 +1,16 @@
 # Escape de la Torre — Simulador de Evacuación con IA
+**Tarea 1: Inteligencia Artificial (2026)**  
+*Universidad de Concepción — Facultad de Ingeniería*  
+*Departamento de Ingeniería Informática y Cs. de la Computación*
 
-Simulador de evacuación multi-agente en una cuadrícula 2D bajo condiciones de propagación dinámica de fuego, congestión en tiempo real y capacidad finita por casilla. Este proyecto compara cuantitativa y cualitativamente algoritmos de búsqueda no informada, búsqueda informada y algoritmos bioinspirados.
+---
+
+## 👥 Integrantes
+* **Alfonso González**
+
+---
+
+Simulador de evacuación multi-agente en una cuadrícula 2D bajo condiciones de propagación dinámica de fuego, congestión en tiempo real y capacidad finita por casilla. Este proyecto compara cuantitativamente algoritmos de búsqueda no informada, búsqueda informada y algoritmos bioinspirados.
 
 ## 📋 Descripción del Proyecto
 
@@ -33,17 +43,16 @@ El sistema modela una torre en llamas representada como una cuadrícula discreta
 ```text
 Simulador-evacuacion-IA/
 ├── resources/
-│   ├── fire.png                      # Sprite gráfico del fuego
 │   └── maps/                         # Escenarios en formato texto
-│       ├── escenario_1.txt           # Mapa 1: Cuadrícula con obstáculos estándar (30x30)
-│       ├── escenario_2.txt           # Mapa 2: Entorno tipo laberinto estrecho (31x31)
-│       └── escenario_3.txt           # Mapa 3: Espacios amplios con columnas dispersas (31x31)
+│       ├── escenario_1.txt           # Mapa 1: Cuello de botella (25x40)
+│       ├── escenario_2.txt           # Mapa 2: Laberinto corporativo (26x40)
+│       └── escenario_3.txt           # Mapa 3: Dispersión abierta (26x40)
 ├── results/
-│   ├── benchmark_results.csv         # Resultados consolidados de 80 ejecuciones por combinación
-│   └── ...                           # Gráficos y análisis estadísticos
+│   ├── benchmark_results.csv         # Resultados históricos de benchmarking
+│   └── benchmark_results_2.0.csv     # Resultados consolidados vigentes (80 corridas por método)
 ├── src/
 │   ├── algorithms/
-│   │   ├── genetic.py                # Algoritmo genético optimizado
+│   │   ├── genetic.py                # Algoritmo genético híbrido espacial
 │   │   ├── informed.py               # Greedy Best-First Search y A*
 │   │   └── uninformed.py             # DFS y BFS
 │   └── environment/
@@ -53,9 +62,10 @@ Simulador-evacuacion-IA/
 │       └── simulation.py             # Orquestador multi-agente, caché de rutas y métricas
 ├── benchmark.py                      # Script de evaluación empírica (1.200 simulaciones totales)
 ├── gui.py                            # Interfaz gráfica interactiva en Tkinter (visor, step-by-step y comparador)
+├── informe.tex                       # Informe académico completo en formato LaTeX
 ├── requirements.txt                  # Dependencias del proyecto
-├── .gitignore                        # Exclusiones de Git (entornos virtuales, caches, temporales)
-└── README.md                         # Documentación general del proyecto
+├── .gitignore                        # Exclusiones de Git
+└── README.md                         # Documentación general y reglas de ejecución
 ```
 
 ---
@@ -154,4 +164,13 @@ Los resultados se almacenan automáticamente en [`results/benchmark_results.csv`
 * **A\* y Greedy** exhiben las tasas de supervivencia más altas ($\approx 55\% - 70\%$) y los menores tiempos de despacho en todos los mapas, equilibrando evasión de fuego y congestión.
 * **BFS** mantiene rutas de mínima cantidad de giros/pasos, pero al no considerar el costo acumulado de proximidad al fuego puede acercar a los agentes a frentes activos.
 * **DFS** sufre severamente en mapas con amplios grados de libertad (Mapa 3) debido a bucles de exploración profunda que agotan el tiempo disponible antes de que el fuego alcance al enjambre.
-* **Algoritmo Genético** demuestra adaptabilidad estocástica, pero su convergencia en cuellos de botella estrechos (Mapa 2) se ve limitada por la necesidad de una población y número de generaciones suficientemente altos para resolver laberintos complejos en tiempo real.
+* **Algoritmo Genético** demuestra adaptabilidad estocástica, logrando tasas de supervivencia competitivas gracias a la hibridación con semillado heurístico y cruce espacial.
+
+---
+
+## 🤖 Declaración de Uso de IA Generativa y Fuentes
+
+En conformidad con las bases de la evaluación académica:
+* Se utilizó asistencia de Inteligencia Artificial Generativa (*Google Gemini / Antigravity AI Assistant*) como copiloto técnico para la estructuración y programación de los algoritmos de búsqueda y optimización bioinspirada (`src/algorithms/`), así como para la depuración del entorno de simulación.
+* La totalidad de las ejecuciones experimentales, el análisis de datos del *benchmarking*, la parametrización de los escenarios y la verificación de las restricciones de la tarea fueron revisados, configurados y validados experimentalmente por el autor.
+
