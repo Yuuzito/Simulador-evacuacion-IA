@@ -55,35 +55,57 @@ class Grid:
         return 0 <= r < self.rows and 0 <= c < self.cols
 
     """
+    Verifica si una celda (r, c) está a distancia ortogonal 1 de alguna celda con fuego.
+    """
+    def is_near_fire(self, r: int, c: int) -> bool:
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        for dr, dc in directions:
+            nr, nc = r + dr, c + dc
+            if self.in_bounds(nr, nc) and self.fire[nr, nc]:
+                return True
+        return False
+
+    """
     Una celda es transitable si está dentro del mapa,
     no es un muro y no ha sido consumida por el fuego.
+    Si avoid_fire_zone=True, también evita celdas a distancia 1 del fuego (excepto la salida).
     """
-    def is_walkable(self, r: int, c: int) -> bool:
+    def is_walkable(self, r: int, c: int, avoid_fire_zone: bool = False) -> bool:
         if not self.in_bounds(r, c):
             return False
-        return not self.walls[r, c] and not self.fire[r, c]
+        if self.walls[r, c] or self.fire[r, c]:
+            return False
+        if avoid_fire_zone and (r, c) != self.exit_pos and self.is_near_fire(r, c):
+            return False
+        return True
 
     """
     Retorna las celdas adyacentes ortogonales (arriba, abajo, izquierda, derecha)
     que estén libres y sin fuego.
     """
-    def get_neighbors(self, r: int, c: int) -> List[Coord]:
+    def get_neighbors(self, r: int, c: int, avoid_fire_zone: bool = False) -> List[Coord]:
         directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
         valid_neighbors = []
 
         for dr, dc in directions:
             nr, nc = r + dr, c + dc
-            if self.is_walkable(nr, nc):
+            if self.is_walkable(nr, nc, avoid_fire_zone=avoid_fire_zone):
                 valid_neighbors.append((nr, nc))
         return valid_neighbors
 
     """
-    Calcula el costo de atravesar una celda segun la congestion.
-    Costo = 1.0 (base) + penalizacion cuadratica por agentes presentes.
+    Calcula el costo de atravesar una celda segun la congestion y cercania al fuego.
+    Costo = 1.0 (base) + penalizacion cuadratica por agentes + penalizacion severa por zona de fuego.
     """
     def get_cost(self, r: int, c: int) -> float:
         num_agents = self.congestion[r, c]
-        return 1.0 + 0.5 * (num_agents ** 2)
+        cost = 1.0 + 0.5 * (num_agents ** 2)
+
+        # Fuerte penalización si la celda está a distancia 1 del fuego (peligro inminente de expansión)
+        if (r, c) != self.exit_pos and self.is_near_fire(r, c):
+            cost += 60.0
+
+        return cost
 
     """
     Propaga el fuego a una celda si no es un muro.

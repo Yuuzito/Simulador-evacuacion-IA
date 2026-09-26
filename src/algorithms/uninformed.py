@@ -3,7 +3,7 @@ from typing import List, Optional, Dict, Set
 from src.environment.grid import Grid, Coord
 
 
-def dfs(grid: Grid, start: Coord, goal: Coord) -> Optional[List[Coord]]:
+def _dfs_search(grid: Grid, start: Coord, goal: Coord, avoid_fire_zone: bool) -> Optional[List[Coord]]:
     # Si el agente ya esta en la meta
     if start == goal:
         return []
@@ -21,8 +21,8 @@ def dfs(grid: Grid, start: Coord, goal: Coord) -> Optional[List[Coord]]:
             found_goal = True
             break
 
-        # Se filtran muros y celdas con fuego
-        for neighbor in grid.get_neighbors(current[0], current[1]):
+        # Se filtran muros, fuego y opcionalmente zona adyacente al fuego
+        for neighbor in grid.get_neighbors(current[0], current[1], avoid_fire_zone=avoid_fire_zone):
             if neighbor not in visited:
                 visited.add(neighbor)
                 came_from[neighbor] = current
@@ -43,11 +43,18 @@ def dfs(grid: Grid, start: Coord, goal: Coord) -> Optional[List[Coord]]:
     path.reverse()
     return path
 
-def bfs(grid: Grid, start: Coord, goal: Coord) -> Optional[List[Coord]]:
-    """
-    Búsqueda en Anchura (BFS).
-    Garantiza el camino con el menor número de movimientos.
-    """
+
+def dfs(grid: Grid, start: Coord, goal: Coord) -> Optional[List[Coord]]:
+    # 1. Intentar encontrar ruta segura evitando distancia 1 al fuego
+    safe_path = _dfs_search(grid, start, goal, avoid_fire_zone=True)
+    if safe_path is not None:
+        return safe_path
+    # 2. Fallback si no hay otra opción
+    return _dfs_search(grid, start, goal, avoid_fire_zone=False)
+
+
+def _bfs_search(grid: Grid, start: Coord, goal: Coord, avoid_fire_zone: bool) -> Optional[List[Coord]]:
+    # Si el agente ya esta en la meta
     if start == goal:
         return []
 
@@ -59,17 +66,18 @@ def bfs(grid: Grid, start: Coord, goal: Coord) -> Optional[List[Coord]]:
 
     while queue:
         current = queue.popleft()
-
         if current == goal:
             found_goal = True
             break
 
-        for neighbor in grid.get_neighbors(current[0], current[1]):
+        # Se filtran muros, fuego y opcionalmente zona adyacente al fuego
+        for neighbor in grid.get_neighbors(current[0], current[1], avoid_fire_zone=avoid_fire_zone):
             if neighbor not in visited:
                 visited.add(neighbor)
                 came_from[neighbor] = current
                 queue.append(neighbor)
 
+    # Si no se alcanzo la meta
     if not found_goal:
         return None
 
@@ -81,3 +89,16 @@ def bfs(grid: Grid, start: Coord, goal: Coord) -> Optional[List[Coord]]:
         curr = came_from[curr]
     path.reverse()
     return path
+
+
+def bfs(grid: Grid, start: Coord, goal: Coord) -> Optional[List[Coord]]:
+    """
+    Búsqueda en Anchura (BFS).
+    Garantiza el camino con el menor número de movimientos.
+    """
+    # 1. Intentar encontrar ruta óptima segura evitando distancia 1 al fuego
+    safe_path = _bfs_search(grid, start, goal, avoid_fire_zone=True)
+    if safe_path is not None:
+        return safe_path
+    # 2. Fallback si la única vía pasa pegada al fuego
+    return _bfs_search(grid, start, goal, avoid_fire_zone=False)
