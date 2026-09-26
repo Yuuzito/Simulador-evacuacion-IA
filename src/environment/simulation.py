@@ -1,6 +1,6 @@
 import time
 import numpy as np
-from typing import List, Tuple, Dict, Any, Callable, Optional
+from typing import List, Tuple, Dict, Any, Callable, Optional, Set
 from src.environment.grid import Grid, Coord
 from src.environment.fire import FireSpread, get_random_fire_foci
 from src.environment.agent import Agent, AgentState
